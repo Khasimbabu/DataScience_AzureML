@@ -1,0 +1,181 @@
+Create a Clustering Model with Azure Machine Learning designer
+===============================================================
+******************************************************************
+
+Clustering is an unsupervised machine learning technique used to group similar entities based on their features or characteristics. Learn how to create clustering models using Azure Machine Learning designer.
+
+
+Clustering is a form of machine learning that is used to group similar items into clusters based on their features. For example, a researcher might take measurements of penguins, and group them based on similarities in their proportions.
+
+There is no previously known cluster value (or label) from which to train the model.
+
+1) Create a dataset
+******************
+
+2) Create a pipeline
+*****************
+In Azure Machine Learning studio for your workspace, view the Designer page and create a new pipeline.
+In the Settings pane, change the default pipeline name (Pipeline-Created-on-date) to Train Penguin Clustering (if the Settings pane is not visible, click the ⚙ icon next to the pipeline name at the top).
+Note that you need to specify a compute target on which to run the pipeline. In the Settings pane, click Select compute target and select the compute cluster you created previously.
+In the pane on the left side of the designer, expand the Datasets section, and drag the penguin-data dataset you created in the previous exercise onto the canvas.
+Right-click (Ctrl+click on a Mac) the penguin-data dataset on the canvas, and on the Visualize menu, select Dataset output.
+Review the schema of the data, noting that you can see the distributions of the various columns as histograms. Then select the CulmenLength column. The dataset should look similar to this:
+
+Note the following characteristics of the dataset:
+
+The dataset includes the following columns:
+CulmenLength: Length of the penguin's bill in millimeters.
+CulmenDepth: Depth of the penguin's bill in millimeters.
+FlipperLength: Length of the penguin's flipper in millimeters.
+BodyMass: Weight of the penguin in grams.
+Species: Species indicator (0:"Amelie", 1:"Gentoo", 2:"Chinstrap")
+There are two missing values in the CulmenLength column (the CulmenDepth, FlipperLength, and BodyMass columns also have two missing values).
+The measurement values are in different scales (from tens of millimeters to thousands of grams).
+Close the dataset visualization so you can see the dataset on the pipeline canvas.
+
+Apply transformations
+----------------------------
+To cluster the penguin observations, we're going to use only the measurements; so we'll discard the species column. We also need to remove rows where values are missing, and normalize the numeric measurement values so they're on a similar scale.
+
+In the pane on the left, expand the Data Transformation section, which contains a wide range of modules you can use to transform data before model training.
+To cluster the penguin observations, we're going to use only the measurements - we'll ignore the species column. So, drag a Select Columns in Dataset module to the canvas, below the penguin-data module and connect the output at the bottom of the penguin-data module to the input at the top of the Select Columns in Dataset module, like this:
+
+Run the pipeline
+-----------------
+Run upto Normalize data module
+
+3) Create and run a training pipeline
+********************************************
+After you've used data transformations to prepare the data, you can use it to train a machine learning model.
+
+Add training modules
+-----------------------
+To train a clustering model, you need to apply a clustering algorithm to the data, using only the features that you have selected for clustering. You'll train the model with a subset of the data, and use the rest to test the trained model.
+
+Follow the steps below, using the image above for reference as you add and configure the required modules.
+
+Open the Train Penguin Clustering pipeline, if it's not already open.
+
+In the pane on the left, in the Data Transformations section, drag a Split Data module onto the canvas under the Normalize Data module. Then connect the left output of the Normalize Data module to the input of the Split Data module.
+
+Select the Split Data module, and configure its settings as follows:
+	Splitting mode: Split Rows
+	Fraction of rows in the first output dataset: 0.7
+	Random seed: 123
+	Stratified split: False
+
+Expand the Model Training section in the pane on the left, and drag a Train Clustering Model module to the canvas, under the Split Data module. Then connect the Result dataset1 (left) output of the Split Data module to the Dataset (right) input of the Train Clustering Model module.
+
+The clustering model should assign clusters to the data items by using all of the features you selected from the original dataset. Select the Train Clustering Model module and in its settings pane, on the Parameters tab, select Edit Columns and use the With rules option to include all columns; like this:
+
+The model we're training will use the features to group the data into clusters, so we need to train the model using a clustering algorithm. Expand the Machine Learning Algorithms section, and under Clustering, drag a K-Means Clustering module to the canvas, to the left of the penguin-data dataset and above the Train Clustering Model module. Then connect its output to the Untrained model (left) input of the Train Clustering Model module.
+
+The K-Means algorithm groups items into the number of clusters you specify - a value referred to as K. Select the K-Means Clustering module and in its settings pane, on the Parameters tab, set the Number of centroids parameter to 3.
+
+After using 70% of the data to train the clustering model, you can use the remaining 30% to test it by using the model to assign the data to clusters. Expand the Model Scoring & Evaluation section and drag an Assign Data to Clusters module to the canvas, below the Train Clustering Model module. Then connect the Trained model (left) output of the Train Clustering Model module to the Trained model (left) input of the Assign Data to Clusters module; and connect the Results dataset2 (right) output of the Split Data module to the Dataset (right) input of the Assign Data to Clusters module.
+
+4) Run the training pipeline 
+*************************************
+Now you're ready to run the training pipeline and train the model.
+
+The model is predicting clusters for the penguin observations, but how reliable are its predictions? To assess that, you need to evaluate the model.
+
+5) Evaluate a clustering model
+**********************************
+Evaluating a clustering model is made difficult by the fact that there are no previously known true values for the cluster assignments. A successful clustering model is one that achieves a good level of separation between the items in each cluster, so we need metrics to help us measure that separation.
+
+
+These metrics can help data scientists assess how well the model separates the clusters. They include a row of metrics for each cluster, and a summary row for a combined evaluation. The metrics in each row are:
+
+	Average Distance to Other Center: This indicates how close, on average, each point in the cluster is to the centroids of all other clusters.
+
+	Average Distance to Cluster Center: This indicates how close, on average, each point in the cluster is to the centroid of the cluster.
+
+	Number of Points: The number of points assigned to the cluster.
+	
+	Maximal Distance to Cluster Center: The maximum of the distances between each point and the centroid of that point’s cluster. If this number is high, the cluster may be widely dispersed. This statistic in combination with the Average Distance to Cluster Center helps you determine the cluster’s spread.
+
+6) Create an inference pipeline
+***********************************
+Now that you have a working clustering model, you can use it to assign new data to clusters in an inference pipeline.
+
+After creating and running a pipeline to train the clustering model, you can create an inference pipeline that uses the model to assign new data observations to clusters. This will form the basis for a predictive service that you can publish for applications to use.
+
+In Azure Machine Learning Studio, open the Train Penguin Clustering pipeline you created previously.
+
+In the Create inference pipeline drop-down list, click Real-time inference pipeline. After a few seconds, a new version of your pipeline named Train Penguin Clustering-real time inference will be opened.
+
+If the pipeline does not include Web Service Input and Web Service Output modules, go back to the Designer page and then re-open the Train Penguin Clustering-real time inference pipeline.
+
+Rename the new pipeline to Predict Penguin Clusters, and then review the new pipeline. It contains a web service input for new data to be submitted, and a web service output to return results. The transformations and clustering model in your training pipeline are encapsulated in this pipeline based on the statistics from your training data, and will be used to transform and score the new data.
+
+Your inference pipeline assigns penguin observations to clusters based on their features. Now you're ready to publish the pipeline so that client applications can use it.
+
+7) Deploy a predictive service
+****************************************
+After you've created and tested an inference pipeline for real-time inferencing, you can publish it as a service for client applications to use.
+
+Deploy a service
+-----------------------------
+View the Predict Penguin Clusters inference pipeline you created in the previous unit.
+
+At the top right, select Deploy, and deploy a new real-time endpoint, using the following settings:
+	Name: predict-penguin-clusters
+	Description: Cluster penguins.
+	Compute type: Azure Container Instance
+
+Wait for the web service to be deployed - this can take several minutes. The deployment status is shown at the top left of the designer interface.
+
+Test the service
+-------------------
+Now you can test your deployed service from a client application - in this case, you'll use the code in the cell below to simulate a client application.
+
+On the Endpoints page, open the predict-penguin-clusters real-time endpoint.
+
+When the predict-penguin-clusters endpoint opens, view the Consume tab and note the following information there. You need this to connect to your deployed service from a client application.
+
+The REST endpoint for your service
+the Primary Key for your service
+Note that you can use the ⧉ link next to these values to copy them to the clipboard.
+
+With the Consume page for the predict-penguin-clusters service page open in your browser, open a new browser tab and open a second instance of Azure Machine Learning studio. Then in the new tab, view the Notebooks page (under Author).
+
+In the Notebooks page, under My files, use the 🗋 button to create a new file with the following settings:
+
+File location: Users/your user name
+File name: Test-Penguins
+File type: Notebook
+Overwrite if already exists: Selected
+When the new notebook has been created, ensure that the compute instance you created previously is selected in the Compute box, and that it has a status of Running.
+
+Use the ≪ button to collapse the file explorer pane and give you more room to focus on the Test-Penguins.ipynb notebook tab.
+
+Switch to the browser tab containing the Consume page for the predict-penguin-clusters service, and copy the REST endpoint for your service. The switch back to the tab containing the notebook and paste the key into the code, replacing YOUR_ENDPOINT.
+
+Switch to the browser tab containing the Consume page for the predict-penguin-clusters service, and copy the Primary Key for your service. The switch back to the tab containing the notebook and paste the key into the code, replacing YOUR_KEY.
+
+Save the notebook, Then use the ▷ button next to the cell to run the code.
+
+Verify that predicted cluster is returned.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

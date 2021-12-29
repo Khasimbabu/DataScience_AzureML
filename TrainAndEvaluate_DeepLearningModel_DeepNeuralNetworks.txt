@@ -1,0 +1,451 @@
+Train and evaluate deep learning models
+========================================
+***********************************************
+Deep learning is an advanced form of machine learning that emulates the way the human brain learns through networks of connected neurons.
+
+In this module, you will learn:
+
+	- Basic principles of deep learning
+	- How to train a deep neural network (DNN) using PyTorch or 	Tensorflow
+	- How to train a convolutional neural network (CNN) using PyTorch or Tensorflow
+	- How to use transfer learning to train a convolutional neural network (CNN) with PyTorch or Tensorflow
+
+Deep learning is an advanced form of machine learning that tries to emulate the way the human brain learns.
+
+In your brain, you have nerve cells called neurons, which are connected to one another by nerve extensions that pass electrochemical signals through the network.
+
+When the first neuron in the network is stimulated, the input signal is processed, and if it exceeds a particular threshold, the neuron is activated and passes the signal on to the neurons to which it is connected. These neurons in turn may be activated and pass the signal on through the rest of the network. Over time, the connections between the neurons are strengthened by frequent use as you learn how to respond effectively. For example, if someone throws a ball towards you, your neuron connections enable you to process the visual information and coordinate your movements to catch the ball. If you perform this action repeatedly, the network of neurons involved in catching a ball will grow stronger as you learn how to be better at catching a ball.
+
+Deep learning emulates this biological process using artificial neural networks that process numeric inputs rather than electrochemical stimuli.
+
+The incoming nerve connections are replaced by numeric inputs that are typically identified as x. When there's more than one input value, x is considered a vector with elements named x1, x2, and so on.
+
+Associated with each x value is a weight (w), which is used to strengthen or weaken the effect of the x value to simulate learning. Additionally, a bias (b) input is added to enable fine-grained control over the network. During the training process, the w and b values will be adjusted to tune the network so that it "learns" to produce correct outputs.
+
+The neuron itself encapsulates a function that calculates a weighted sum of x, w, and b. This function is in turn enclosed in an activation function that constrains the result (often to a value between 0 and 1) to determine whether or not the neuron passes an output onto the next layer of neurons in the network.
+
+
+Deep neural network concepts
+************************************
+Before exploring how to train a deep neural network (DNN) machine learning model, let's consider what we're trying to achieve. Machine learning is concerned with predicting a label based on some features of a particular observation. In simple terms, a machine learning model is a function that calculates y (the label) from x (the features): f(x)=y.
+
+A simple classification example
+-------------------------------
+For example, suppose your observation consists of some measurements of a penguin.
+
+Specifically, the measurements are:
+
+	The length of the penguin's bill.
+	The depth of the penguin's bill.
+	The length of the penguin's flipper.
+	The penguin's weight.
+
+In this case, the features (x) are a vector of four values, or mathematically, x=[x1,x2,x3,x4].
+
+Let's suppose that the label we're trying to predict (y) is the species of the penguin, and that there are three possible species it could be:
+
+	Adelie
+	Gentoo
+	Chinstrap
+
+This is an example of a classification problem, in which the machine learning model must predict the most probable class to which the observation belongs. A classification model accomplishes this by predicting a label that consists of the probability for each class. In other words, y is a vector of three probability values; one for each of the possible classes: y=[P(0),P(1),P(2)].
+
+You train the machine learning model by using observations for which you already know the true label. For example, you may have the following feature measurements for an Adelie specimen:
+
+x=[37.3, 16.8, 19.2, 30.0]
+You already know that this is an example of an Adelie (class 0), so a perfect classification function should result in a label that indicates a 100% probability for class 0, and a 0% probability for classes 1 and 2:
+
+y=[1, 0, 0]
+
+A deep neural network model
+**********************************
+So how would we use deep learning to build a classification model for the penguin classification model? Let's look at an example:
+
+The deep neural network model for the classifier consists of multiple layers of artificial neurons. In this case, there are four layers:
+
+ - An input layer with a neuron for each expected input (x) value.
+ - Two so-called hidden layers, each containing five neurons.
+ - An output layer containing three neurons - one for each class probability (y) value to be predicted by the model.
+
+Because of the layered architecture of the network, this kind of model is sometimes referred to as a multilayer perceptron. Additionally, notice that all neurons in the input and hidden layers are connected to all neurons in the subsequent layers - this is an example of a fully connected network.
+
+When you create a model like this, you must define an input layer that supports the number of features your model will process, and an output layer that reflects the number of outputs you expect it to produce. You can decide how many hidden layers you want to include and how many neurons are in each of them; but you have no control over the input and output values for these layers - these are determined by the model training process.
+
+Training a deep neural network
+************************************
+The training process for a deep neural network consists of multiple iterations, called epochs. For the first epoch, you start by assigning random initialization values for the weight (w) and bias b values. Then the process is as follows:
+
+Features for data observations with known label values are submitted to the input layer. Generally, these observations are grouped into batches (often referred to as mini-batches).
+The neurons then apply their function, and if activated, pass the result onto the next layer until the output layer produces a prediction.
+The prediction is compared to the actual known value, and the amount of variance between the predicted and true values (which we call the loss) is calculated.
+Based on the results, revised values for the weights and bias values are calculated to reduce the loss, and these adjustments are backpropagated to the neurons in the network layers.
+The next epoch repeats the batch training forward pass with the revised weight and bias values, hopefully improving the accuracy of the model (by reducing the loss).
+
+Processing the training features as a batch improves the efficiency of the training process by processing multiple observations simultaneously as a matrix of features with vectors of weights and biases. Linear algebraic functions that operate wth matrices and vectors also feature in 3D graphics processing, which is why computers with graphic processing units (GPUs) provide significantly better performance for deep learning model training than central processing unit (CPU) only computers.
+
+Calculating loss
+-------------------
+Suppose one of the samples passed through the training process contains features of an Adelie specimen (class 0). The correct output from the network would be [1, 0, 0]. Now suppose that the output produced by the network is [0.4, 0.3, 0.3]. Comparing these, we can calculate an absolute variance for each element (in other words, how far is each predicted value away from what it should be) as [0.6, 0.3, 0.3].
+
+In reality, since we're actually dealing with multiple observations, we typically aggregate the variance - for example by squaring the individual variance values and calculating the mean, so we end up with a single, average loss value, like 0.18.
+
+Optimizers
+--------------
+Now, here's the clever bit. The loss is calculated using a function, which operates on the results from the final layer of the network, which is also a function. The final layer of network operates on the outputs from the previous layers, which are also functions. So in effect, the entire model from the input layer right through to the loss calculation is just one big nested function. Functions have a few really useful characteristics, including:
+
+You can conceptualize a function as a plotted line comparing its output with each of its variables.
+You can use differential calculus to calculate the derivative of the function at any point with respect to its variables.
+Let's take the first of these capabilities. We can plot the line of the function to show how an individual weight value compares to loss, and mark on that line the point where the current weight value matches the current loss value.
+
+Now let's apply the second characteristic of a function. The derivative of a function for a given point indicates whether the slope (or gradient) of the function output (in this case, loss) is increasing or decreasing with respect to a function variable (in this case, the weight value). A positive derivative indicates that the function is increasing, and a negative derivative indicates that it is decreasing. In this case, at the plotted point for the current weight value, the function has a downward gradient. In other words, increasing the weight will have the effect of decreasing the loss.
+
+We use an optimizer to apply this same trick for all of the weight and bias variables in the model and determine in which direction we need to adjust them (up or down) to reduce the overall amount of loss in the model. There are multiple commonly used optimization algorithms, including stochastic gradient descent (SGD), Adaptive Learning Rate (ADADELTA), Adaptive Momentum Estimation (Adam), and others; all of which are designed to figure out how to adjust the weights and biases to minimize loss.
+
+Learning rate
+----------------------
+Now, the obvious next question is, by how much should the optimizer adjust the weights and bias values? If you look at the plot for our weight value, you can see that increasing the weight by a small amount will follow the function line down (reducing the loss), but if we increase it by too much, the function line starts to go up again, so we might actually increase the loss; and after the next epoch, we might find we need to reduce the weight.
+
+The size of the adjustment is controlled by a parameter that you set for training called the learning rate. A low learning rate results in small adjustments (so it can take more epochs to minimize the loss), while a high learning rate results in large adjustments (so you might miss the minimum altogether).
+*********************************************
+
+Exercise - Train a deep neural network
+****************************************
+There are many frameworks available for training deep neural networks, and in this exercise you can choose to explore either (or both) of two of the most popular deep learning frameworks for Python: PyTorch and TensorFlow.
+
+# Deep Learning with PyTorch
+*********************************
+*************************************
+Classical machine learning relies on using statistics to determine relationships between features and labels, and can be very effective for creating predictive models. However, a massive growth in the availability of data coupled with advances in the computing technology required to process it has led to the emergence of new machine learning techniques that mimic the way the brain processes information in a structure called an artificial neural network.
+
+PyTorch is a framework for creating machine learning models, including deep neural networks (DNNs). In this example, we'll use PyTorch to create a simple neural network that classifies penguins into species based on the length and depth of their culmen (bill), their flipper length, and their body mass.
+
+## Explore the Dataset
+=======================
+Before we start using PyTorch to create a model, let's load the data we need from the Palmer Islands penguins dataset, which contains observations of three different species of penguin.
+
+> **Note**: In reality, you can solve the penguin classification problem easily using classical machine learning techniques without the need for a deep learning model; but it's a useful, easy to understand dataset with which to demonstrate the principles of neural networks in this notebook.
+
+>>>>>>>>>>>>>>>>>
+import pandas as pd
+
+# load the training dataset (excluding rows with null values)
+penguins = pd.read_csv('data/penguins.csv').dropna()
+
+# Deep Learning models work best when features are on similar scales
+# In a real solution, we'd implement some custom normalization for each feature, but to keep things simple
+# we'll just rescale the FlipperLength and BodyMass so they're on a similar scale to the bill measurements
+penguins['FlipperLength'] = penguins['FlipperLength']/10
+penguins['BodyMass'] = penguins['BodyMass']/100
+
+# The dataset is too small to be useful for deep learning
+# So we'll oversample it to increase its size
+for i in range(1,3):
+    penguins = penguins.append(penguins)
+
+# Display a random sample of 10 observations
+sample = penguins.sample(10)
+sample
+
+>>>>>>>>>>>>>>>
+The Species column is the label our model will predict. Each label value represents a class of penguin species, encoded as 0, 1, or 2. The following code shows the actual species to which these class labels corrrespond.
+
+penguin_classes = ['Adelie', 'Gentoo', 'Chinstrap']
+print(sample.columns[0:5].values, 'SpeciesName')
+for index, row in penguins.sample(10).iterrows():
+    print('[',row[0], row[1], row[2],row[3], int(row[4]), ']',penguin_classes[int(row[-1])])
+
+>>>>>>>>>>>>>>
+As is common in a supervised learning problem, we'll split the dataset into a set of records with which to train the model, and a smaller set with which to validate the trained model.
+
+from sklearn.model_selection import train_test_split
+
+features = ['CulmenLength','CulmenDepth','FlipperLength','BodyMass']
+label = 'Species'
+   
+# Split data 70%-30% into training set and test set
+x_train, x_test, y_train, y_test = train_test_split(penguins[features].values,
+                                                    penguins[label].values,
+                                                    test_size=0.30,
+                                                    random_state=0)
+
+print ('Training Set: %d, Test Set: %d \n' % (len(x_train), len(x_test)))
+print("Sample of features and labels:")
+
+# Take a look at the first 25 training features and corresponding labels
+for n in range(0,24):
+    print(x_train[n], y_train[n], '(' + penguin_classes[y_train[n]] + ')')
+
+>>>>>>>>>>>>>>>>>>>>>>>>>
+The features are the measurements for each penguin observation, and the label is a numeric value that indicates the species of penguin that the observation represents (Adelie, Gentoo, or Chinstrap).
+
+Install and import the PyTorch libraries
+**********************************************
+Install and import the PyTorch libraries
+Since we plan to use PyTorch to create our penguin classifier, we'll need to run the following two cells to install and import the PyTorch libraries we intend to use. The specific installation of of PyTorch depends on your operating system and whether your computer has graphics processing units (GPUs) that can be used for high-performance processing via cuda. 
+
+!pip install torch==1.7.1+cpu torchvision==0.8.2+cpu torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+
+>>>>>>>>>>>>>>>>>>
+import torch
+import torch.nn as nn
+import torch.utils.data as td
+
+# Set random seed for reproducability
+torch.manual_seed(0)
+
+print("Libraries imported - ready to use PyTorch", torch.__version__)
+
+>>>>>>>>>>>>>>>>>>
+Prepare the data for PyTorch
+*******************************
+PyTorch makes use of data loaders to load training and validation data in batches. We've already loaded the data into numpy arrays, but we need to wrap those in PyTorch datasets (in which the data is converted to PyTorch tensor objects) and create loaders to read batches from those datasets.
+
+# Create a dataset and loader for the training data and labels
+train_x = torch.Tensor(x_train).float()
+train_y = torch.Tensor(y_train).long()
+train_ds = td.TensorDataset(train_x,train_y)
+train_loader = td.DataLoader(train_ds, batch_size=20,
+    shuffle=False, num_workers=1)
+
+# Create a dataset and loader for the test data and labels
+test_x = torch.Tensor(x_test).float()
+test_y = torch.Tensor(y_test).long()
+test_ds = td.TensorDataset(test_x,test_y)
+test_loader = td.DataLoader(test_ds, batch_size=20,
+    shuffle=False, num_workers=1)
+print('Ready to load data')
+
+Define a neural network
+******************************
+Now we're ready to define our neural network. In this case, we'll create a network that consists of 3 fully-connected layers:
+
+An input layer that receives an input value for each feature (in this case, the four penguin measurements) and applies a ReLU activation function.
+A hidden layer that receives ten inputs and applies a ReLU activation function.
+An output layer that uses a Softmax activation function to generate an output for each penguin species (which represent the classification probabilities for each of the three possible penguin species). Softmax functions produce a vector with probability values that sum to 1.
+
+>>>>>>>>>>
+# Number of hidden layer nodes
+hl = 10
+
+# Define the neural network
+class PenguinNet(nn.Module):
+    def __init__(self):
+        super(PenguinNet, self).__init__()
+        self.fc1 = nn.Linear(len(features), hl)
+        self.fc2 = nn.Linear(hl, hl)
+        self.fc3 = nn.Linear(hl, len(penguin_classes))
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = torch.softmax(self.fc3(x),dim=1)
+        return x
+
+# Create a model instance from the network
+model = PenguinNet()
+print(model)
+
+>>>>>>>>>>>>>>>>>>>
+Train the model
+**********************
+To train the model, we need to repeatedly feed the training values forward through the network, use a loss function to calculate the loss, use an optimizer to backpropagate the weight and bias value adjustments, and validate the model using the test data we withheld.
+
+To do this, we'll create a function to train and optimize the model, and function to test the model. Then we'll call these functions iteratively over 50 epochs, logging the loss and accuracy statistics for each epoch.
+
+def train(model, data_loader, optimizer):
+    # Set the model to training mode
+    model.train()
+    train_loss = 0
+    
+    for batch, tensor in enumerate(data_loader):
+        data, target = tensor
+        #feedforward
+        optimizer.zero_grad()
+        out = model(data)
+        loss = loss_criteria(out, target)
+        train_loss += loss.item()
+
+        # backpropagate
+        loss.backward()
+        optimizer.step()
+
+    #Return average loss
+    avg_loss = train_loss / (batch+1)
+    print('Training set: Average loss: {:.6f}'.format(avg_loss))
+    return avg_loss
+           
+            
+def test(model, data_loader):
+    # Switch the model to evaluation mode (so we don't backpropagate)
+    model.eval()
+    test_loss = 0
+    correct = 0
+
+    with torch.no_grad():
+        batch_count = 0
+        for batch, tensor in enumerate(data_loader):
+            batch_count += 1
+            data, target = tensor
+            # Get the predictions
+            out = model(data)
+
+            # calculate the loss
+            test_loss += loss_criteria(out, target).item()
+
+            # Calculate the accuracy
+            _, predicted = torch.max(out.data, 1)
+            correct += torch.sum(target==predicted).item()
+            
+    # Calculate the average loss and total accuracy for this epoch
+    avg_loss = test_loss/batch_count
+    print('Validation set: Average loss: {:.6f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        avg_loss, correct, len(data_loader.dataset),
+        100. * correct / len(data_loader.dataset)))
+    
+    # return average loss for the epoch
+    return avg_loss
+
+# Specify the loss criteria (CrossEntropyLoss for multi-class classification)
+loss_criteria = nn.CrossEntropyLoss()
+
+# Use an "Adam" optimizer to adjust weights
+# (see https://pytorch.org/docs/stable/optim.html#algorithms for details of supported algorithms)
+learning_rate = 0.001
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer.zero_grad()
+
+# We'll track metrics for each epoch in these arrays
+epoch_nums = []
+training_loss = []
+validation_loss = []
+
+# Train over 50 epochs
+epochs = 50
+for epoch in range(1, epochs + 1):
+
+    # print the epoch number
+    print('Epoch: {}'.format(epoch))
+    
+    # Feed training data into the model to optimize the weights
+    train_loss = train(model, train_loader, optimizer)
+    
+    # Feed the test data into the model to check its performance
+    test_loss = test(model, test_loader)
+    
+    # Log the metrics for this epoch
+    epoch_nums.append(epoch)
+    training_loss.append(train_loss)
+    validation_loss.append(test_loss)
+
+>>>>>>>>>>>>>>>>>>
+
+While the training process is running, let's try to understand what's happening:
+
+1. In each *epoch*, the full set of training data is passed forward through the network. There are four features for each observation, and four corresponding nodes in the input layer - so the features for each observation are passed as a vector of four values to that layer. However, for efficiency, the feature vectors are grouped into batches; so actually a matrix of multiple feature vectors is fed in each time.
+2. The matrix of feature values is processed by a function that performs a weighted sum using initialized weights and bias values. The result of this function is then processed by the activation function for the input layer to constrain the values passed to the nodes in the next layer.
+3. The weighted sum and activation functions are repeated in each layer. Note that the functions operate on vectors and matrices rather than individual scalar values. In other words, the forward pass is essentially a series of nested linear algebra functions. This is the reason data scientists prefer to use computers with graphical processing units (GPUs), since these are optimized for matrix and vector calculations.
+4. In the final layer of the network, the output vectors contain a probability value for each possible class (in this case, classes 0, 1, and 2). This vector is processed by a *loss function* to determine how far the values calculated by the network are from the actual values - so for example, suppose the output for a Gentoo penguin (class 1) observation is \[0.3, 0.4, 0.3\]. The correct prediction should be \[0.0, 1.0, 0.0\], so the variance between the predicted and actual values (how far away the each predicted value is from what it should be) is \[0.3, 0.6, 0.3\]. This variance is aggregated for each batch and maintained as a running aggregate to calculate the overall level of error (*loss*) incurred by the training data for the epoch. 
+5. At the end of each epoch, the validation data is passed through the network, and its loss and accuracy (proportion of correct predictions based on the highest probability value in the output vector) are also calculated. It's important to do this because it enables us to compare the performance of the model using data on which it was not trained, helping us determine if it will generalize well for new data or if it's *overfitted* to the training data.
+6. After all the data has been passed forward through the network, the output of the loss function for the *training* data (but <u>not</u> the *validation* data) is passed to the opimizer. The precise details of how the optimizer processes the loss vary depending on the specific optimization algorithm being used; but fundamentally you can think of the entire network, from the input layer to the loss function as being one big nested (*composite*) function. The optimizer applies some differential calculus to calculate *partial derivatives* for the function with respect to each weight and bias value that was used in the network. It's possible to do this efficiently for a nested function due to something called the *chain rule*, which enables you to determine the derivative of a composite function from the derivatives of its inner function and outer functions. You don't really need to worry about the details of the math here (the optimizer does it for you), but the end result is that the partial derivatives tell us about the slope (or *gradient*) of the loss function with respect to each weight and bias value - in other words, we can determine whether to increase or decrease the weight and bias values in order to decrease the loss.
+7. Having determined in which direction to adjust the weights and biases, the optimizer uses the *learning rate* to determine by how much to adjust them; and then works backwards through the network in a process called *backpropagation* to assign new values to the weights and biases in each layer.
+8. Now the next epoch repeats the whole training, validation, and backpropagation process starting with the revised weights and biases from the previous epoch - which hopefully will result in a lower level of loss.
+9. The process continues like this for 50 epochs.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+## Review training and validation loss
+*****************************************************
+After training is complete, we can examine the loss metrics we recorded while training and validating the model. We're really looking for two things:
+* The loss should reduce with each epoch, showing that the model is learning the right weights and biases to predict the correct labels.
+* The training loss and validation loss should follow a similar trend, showing that the model is not overfitting to the training data.
+
+Let's plot the loss metrics and see:
+
+>>>>>>>>>
+%matplotlib inline
+from matplotlib import pyplot as plt
+
+plt.plot(epoch_nums, training_loss)
+plt.plot(epoch_nums, validation_loss)
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.legend(['training', 'validation'], loc='upper right')
+plt.show()
+
+>>>>>>>>>>>>>>>>>>>>
+View the learned weights and biases
+****************************************
+The trained model consists of the final weights and biases that were determined by the optimizer during training. Based on our network model we should expect the following values for each layer:
+
+Layer 1: There are four input values going to ten output nodes, so there should be 10 x 4 weights and 10 bias values.
+Layer 2: There are ten input values going to ten output nodes, so there should be 10 x 10 weights and 10 bias values.
+Layer 3: There are ten input values going to three output nodes, so there should be 3 x 10 weights and 3 bias values.
+
+>>>>>>
+for param_tensor in model.state_dict():
+    print(param_tensor, "\n", model.state_dict()[param_tensor].numpy())
+>>>>>>>>>>>>
+
+Evaluate model performance
+********************************
+So, is the model any good? The raw accuracy reported from the validation data would seem to indicate that it predicts pretty well; but it's typically useful to dig a little deeper and compare the predictions for each possible class. A common way to visualize the performace of a classification model is to create a confusion matrix that shows a crosstab of correct and incorrect predictions for each class.
+
+>>>>>>>>>>>>
+#Pytorch doesn't have a built-in confusion matrix metric, so we'll use SciKit-Learn
+from sklearn.metrics import confusion_matrix
+import numpy as np
+
+# Set the model to evaluate mode
+model.eval()
+
+# Get predictions for the test data
+x = torch.Tensor(x_test).float()
+_, predicted = torch.max(model(x).data, 1)
+
+# Plot the confusion matrix
+cm = confusion_matrix(y_test, predicted.numpy())
+plt.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
+plt.colorbar()
+tick_marks = np.arange(len(penguin_classes))
+plt.xticks(tick_marks, penguin_classes, rotation=45)
+plt.yticks(tick_marks, penguin_classes)
+plt.xlabel("Actual Species")
+plt.ylabel("Predicted Species")
+plt.show()
+
+>>>>>>>>>>>>>>>>
+Save the trained model
+***************************
+Now that we have a model we believe is reasonably accurate, we can save its trained weights for use later.
+
+# Save the model weights
+model_file = 'models/penguin_classifier.pt'
+torch.save(model.state_dict(), model_file)
+del model
+print('model saved as', model_file)
+
+Use the trained model
+*************************
+When we have a new penguin observation, we can use the model to predict the species.
+
+# New penguin features
+x_new = [[50.4,15.3,20,50]]
+print ('New sample: {}'.format(x_new))
+
+# Create a new model class and load weights
+model = PenguinNet()
+model.load_state_dict(torch.load(model_file))
+
+# Set model to evaluation mode
+model.eval()
+
+# Get a prediction for the new data sample
+x = torch.Tensor(x_new).float()
+_, predicted = torch.max(model(x).data, 1)
+
+print('Prediction:',penguin_classes[predicted.item()])
+
+****************************************************************
+********************************************************************
+
+
+

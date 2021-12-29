@@ -1,0 +1,599 @@
+Train and evaluate classification models
+========================================
+***********************************************
+Classification is a form of machine learning in which you train a model to predict which category or class, an item belongs to. 
+
+For example, a health clinic might use diagnostic data such as a patient's height, weight, blood pressure, blood-glucose level, and so on, to predict whether or not the patient is diabetic.
+
+In this example, there are two possible classes (non-diabetic and diabetic), making this an example of binary classification. The class prediction is made by determining the probability for each possible class as a value between 0 (impossible) and 1 (certain). The total probability for all classes is 1 (the patient is definitely either diabetic or non-diabetic), so if the predicted probability of a patient being diabetic is 0.3, then there is a corresponding probability of 0.7 that the patient is non-diabetic. A threshold value, usually 0.5, is used to determine the predicted class - so if the positive class (in this case, diabetic) has a predicted probability greater than the threshold, then a classification of diabetic is predicted.
+
+It's also possible to create multiclass classification models, in which there are more than two possible classes. For example, the health clinic might expand the diabetes model to classify patients as non-diabetic, type-1 diabetic, or type-2 diabetic. The individual class probability values would still add up to a total of 1 (the patient is definitely in one of the three classes), and the most probable class would be predicted by the model.
+
+We can tabulate the results in a structure called a confusion matrix, like this:
+
+A confusion matrix showing 2 true-negatives, 2 true-positives, 1 false-negative, and 1-false positive
+
+The confusion matrix shows the total number of cases where:
+
+The model predicted 0, and the actual label is 0 (true negatives)
+The model predicted 1 and the actual label is 1 (true positives)
+The model predicted 0 and the actual label is 1 (false negatives)
+The model predicted 1 and the actual label is 0 (false positives)
+
+The cells in the confusion matrix are often shaded so that higher values have a deeper shade. This makes it easier to see a strong diagonal trend from top-left to bottom-right, highlighting the cells where the predicted value and actual value are the same.
+
+From these core values, you can calculate a range of other metrics that can help you evaluate the performance of the model. 
+
+	Accuracy: (TP+TN)/(TP+TN+FP+FN) - in other words, out all of the predictions, how many were correct?
+	
+	Recall: TP/(TP+FN) - in other words, of all the cases that are positive, how many did the model identify?
+	
+	Precision: TP/(TP+FP) - in other words, of all the cases that the model predicted to be positive, how many actually are positive?
+
+Exercise - Train and evaluate a classification model
+************************************************************
+Classification is a form of supervised machine learning in which you train a model to use the features (the x values in our function) to predict a label (y) that calculates the probability of the observed case belonging to each of a number of possible classes, and predicting an appropriate label. The simplest form of classification is binary classification, in which the label is 0 or 1, representing one of two classes; for example, "True" or "False"; "Internal" or "External"; "Profitable" or "Non-Profitable"; and so on.
+
+y = f([x1,x2,x3,...])
+
+Binary Classification
+-----------------------
+Let's start by looking at an example of binary classification, where the model must predict a label that belongs to one of two classes. In this exercise, we'll train a binary classifier to predict whether or not a patient should be tested for diabetes based on some medical data.
+
+Diabetic is the label that we will train our model to predict; most of the other columns (Pregnancies,PlasmaGlucose,DiastolicBloodPressure, and so on) are the features we will use to predict the Diabetic label.
+
+Let's separate the features from the labels - we'll call the features X and the label y:
+
+Explore the data
+********************
+>>>>>>>>>>>
+import pandas as pd
+
+# load the training dataset
+diabetes = pd.read_csv('data/diabetes.csv')
+diabetes.head()
+
+>>>>>>>>>>>>>>>>>>>>
+# Separate features and labels
+features = ['Pregnancies','PlasmaGlucose','DiastolicBloodPressure','TricepsThickness','SerumInsulin','BMI','DiabetesPedigree','Age']
+label = 'Diabetic'
+X, y = diabetes[features].values, diabetes[label].values
+
+for n in range(0,4):
+    print("Patient", str(n+1), "\n  Features:",list(X[n]), "\n  Label:", y[n])
+
+>>>>>>>>>>>>>>>>>>>>>>
+from matplotlib import pyplot as plt
+%matplotlib inline
+
+features = ['Pregnancies','PlasmaGlucose','DiastolicBloodPressure','TricepsThickness','SerumInsulin','BMI','DiabetesPedigree','Age']
+for col in features:
+    diabetes.boxplot(column=col, by='Diabetic', figsize=(6,6))
+    plt.title(col)
+plt.show()
+
+>>>>>>>>>>>>>>>>>>>>>>>>
+Split the data
+******************
+we have a large dataset with known label values, use only some of it to train the model, and hold back some to test the trained model - enabling us to compare the predicted labels with the already known labels in the test set.
+
+In Python, the scikit-learn package contains a large number of functions we can use to build a machine learning model - including a train_test_split function that ensures we get a statistically random split of training and test data. We'll use that to split the data into 70% for training and hold back 30% for testing.
+
+>>>>>>>>>>
+from sklearn.model_selection import train_test_split
+
+# Split data 70%-30% into training set and test set
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
+
+print ('Training cases: %d\nTest cases: %d' % (X_train.shape[0], X_test.shape[0]))
+
+>>>>>>>>>>>>>
+Train and Evaluate a Binary Classification Model
+**************************************************
+OK, now we're ready to train our model by fitting the training features (X_train) to the training labels (y_train). There are various algorithms we can use to train the model. In this example, we'll use Logistic Regression, which (despite its name) is a well-established algorithm for classification. In addition to the training features and labels, we'll need to set a regularization parameter. This is used to counteract any bias in the sample, and help the model generalize well by avoiding overfitting the model to the training data.
+
+Note: Parameters for machine learning algorithms are generally referred to as hyperparameters (to a data scientist, parameters are values in the data itself - hyperparameters are defined externally from the data!)
+
+>>>>>>>>>>>
+# Train the model
+from sklearn.linear_model import LogisticRegression
+
+# Set regularization rate
+reg = 0.01
+
+# train a logistic regression model on the training set
+model = LogisticRegression(C=1/reg, solver="liblinear").fit(X_train, y_train)
+print (model)
+
+>>>>>>>>>>>>>>>
+Now we've trained the model using the training data, we can use the test data we held back to evaluate how well it predicts. Again, scikit-learn can help us do this. Let's start by using the model to predict labels for our test set, and compare the predicted labels to the known labels:
+
+predictions = model.predict(X_test)
+print('Predicted labels: ', predictions)
+print('Actual labels:    ' ,y_test)
+
+>>>>>>>>>
+from sklearn.metrics import accuracy_score
+
+print('Accuracy: ', accuracy_score(y_test, predictions))
+
+>>>>>>>>>>>>>>>>>>>
+from sklearn. metrics import classification_report
+
+print(classification_report(y_test, predictions))
+
+>>>>>>>>>>>>>>>>>>
+Precision: Of the predictions the model made for this class, what proportion were correct?
+
+Recall: Out of all of the instances of this class in the test dataset, how many did the model identify?
+
+F1-Score: An average metric that takes both precision and recall into account.
+
+Support: How many instances of this class are there in the test dataset?
+>>>>>>>>>>>>>>>>
+from sklearn.metrics import precision_score, recall_score
+
+print("Overall Precision:",precision_score(y_test, predictions))
+print("Overall Recall:",recall_score(y_test, predictions))
+
+>>>>>>>>>>>>>>>>>
+The precision and recall metrics are derived from four possible prediction outcomes:
+
+True Positives: The predicted label and the actual label are both 1.
+False Positives: The predicted label is 1, but the actual label is 0.
+False Negatives: The predicted label is 0, but the actual label is 1.
+True Negatives: The predicted label and the actual label are both 0.
+These metrics are generally tabulated for the test set and shown together as a confusion matrix, which takes the following form:
+
+>>>>>>>>>>>>>>>>>
+In Python, you can use the sklearn.metrics.confusion_matrix function to find these values for a trained classifier:
+
+from sklearn.metrics import confusion_matrix
+
+# Print the confusion matrix
+cm = confusion_matrix(y_test, predictions)
+print (cm)
+
+>>>>>>>>>>>>>>>>>>>
+You can use the predict_proba method to see the probability pairs for each case
+y_scores = model.predict_proba(X_test)
+print(y_scores)
+
+>>>>>>>>>>>>>>>
+The decision to score a prediction as a 1 or a 0 depends on the threshold to which the predicted probabilities are compared. If we were to change the threshold, it would affect the predictions; and therefore change the metrics in the confusion matrix. A common way to evaluate a classifier is to examine the true positive rate (which is another name for recall) and the false positive rate for a range of possible thresholds. These rates are then plotted against all possible thresholds to form a chart known as a received operator characteristic (ROC) chart, like this
+
+from sklearn.metrics import roc_curve
+from sklearn.metrics import confusion_matrix
+import matplotlib
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+# calculate ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_scores[:,1])
+
+# plot ROC curve
+fig = plt.figure(figsize=(6, 6))
+# Plot the diagonal 50% line
+plt.plot([0, 1], [0, 1], 'k--')
+# Plot the FPR and TPR achieved by our model
+plt.plot(fpr, tpr)
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.show()
+
+>>>>>>>>>>>>>>>>>>>
+
+The area under the curve (AUC) is a value between 0 and 1 that quantifies the overall performance of the model. The closer to 1 this value is, the better the model. Once again, scikit-Learn includes a function to calculate this metric.
+
+from sklearn.metrics import roc_auc_score
+
+auc = roc_auc_score(y_test,y_scores[:,1])
+print('AUC: ' + str(auc))
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Perform preprocessing in a pipeline
+*************************************
+In this case, the ROC curve and its AUC indicate that the model performs better than a random guess which is not bad considering we performed very little preprocessing of the data.
+
+In practice, it's common to perform some preprocessing of the data to make it easier for the algorithm to fit a model to it. There's a huge range of preprocessing transformations you can perform to get your data ready for modeling, but we'll limit ourselves to a few common techniques:
+
+Scaling numeric features so they're on the same scale. This prevents features with large values from producing coefficients that disproportionately affect the predictions.
+Encoding categorical variables. For example, by using a one hot encoding technique you can create individual binary (true/false) features for each possible category value.
+To apply these preprocessing transformations, we'll make use of a Scikit-Learn feature named pipelines.
+
+# Train the model
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+
+# Define preprocessing for numeric columns (normalize them so they're on the same scale)
+numeric_features = [0,1,2,3,4,5,6]
+numeric_transformer = Pipeline(steps=[
+    ('scaler', StandardScaler())])
+
+# Define preprocessing for categorical features (encode the Age column)
+categorical_features = [7]
+categorical_transformer = Pipeline(steps=[
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+# Combine preprocessing steps
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)])
+
+# Create preprocessing and training pipeline
+pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                           ('logregressor', LogisticRegression(C=1/reg, solver="liblinear"))])
+
+
+# fit the pipeline to train a logistic regression model on the training set
+model = pipeline.fit(X_train, (y_train))
+print (model)
+
+>>>>>>>>>>>>>>>>>>>>>>>>
+Let's use the model trained by this pipeline to predict labels for our test set, and compare the performance metrics with the basic model we created previously.
+
+# Get predictions from test data
+predictions = model.predict(X_test)
+y_scores = model.predict_proba(X_test)
+
+# Get evaluation metrics
+cm = confusion_matrix(y_test, predictions)
+print ('Confusion Matrix:\n',cm, '\n')
+print('Accuracy:', accuracy_score(y_test, predictions))
+print("Overall Precision:",precision_score(y_test, predictions))
+print("Overall Recall:",recall_score(y_test, predictions))
+auc = roc_auc_score(y_test,y_scores[:,1])
+print('AUC: ' + str(auc))
+
+# calculate ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_scores[:,1])
+
+# plot ROC curve
+fig = plt.figure(figsize=(6, 6))
+# Plot the diagonal 50% line
+plt.plot([0, 1], [0, 1], 'k--')
+# Plot the FPR and TPR achieved by our model
+plt.plot(fpr, tpr)
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.show()
+
+>>>>>>>>>>>>>>>>>>
+The results look a little better, so clearly preprocessing the data has made a difference.
+
+Try a different algorithm
+**********************************************
+Now let's try a different algorithm. Previously we used a logistic regression algorithm, which is a linear algorithm. There are many kinds of classification algorithm we could try, including:
+
+Support Vector Machine algorithms: Algorithms that define a hyperplane that separates classes.
+Tree-based algorithms: Algorithms that build a decision tree to reach a prediction
+Ensemble algorithms: Algorithms that combine the outputs of multiple base algorithms to improve generalizability.
+This time, We'll use the same preprocessing steps as before, but we'll train the model using an ensemble algorithm named Random Forest that combines the outputs of multiple random decision trees 
+
+>>>>>>>>>>
+RandomForestClassifier
+************************
+from sklearn.ensemble import RandomForestClassifier
+
+# Create preprocessing and training pipeline
+pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                           ('logregressor', RandomForestClassifier(n_estimators=100))])
+
+# fit the pipeline to train a random forest model on the training set
+model = pipeline.fit(X_train, (y_train))
+print (model)
+
+>>>>>>>>>>>>>>>
+predictions = model.predict(X_test)
+y_scores = model.predict_proba(X_test)
+cm = confusion_matrix(y_test, predictions)
+print ('Confusion Matrix:\n',cm, '\n')
+print('Accuracy:', accuracy_score(y_test, predictions))
+print("Overall Precision:",precision_score(y_test, predictions))
+print("Overall Recall:",recall_score(y_test, predictions))
+auc = roc_auc_score(y_test,y_scores[:,1])
+print('\nAUC: ' + str(auc))
+
+# calculate ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_scores[:,1])
+
+# plot ROC curve
+fig = plt.figure(figsize=(6, 6))
+# Plot the diagonal 50% line
+plt.plot([0, 1], [0, 1], 'k--')
+# Plot the FPR and TPR achieved by our model
+plt.plot(fpr, tpr)
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.show()
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Use the Model for Inferencing
+********************************
+Now that we have a reasonably useful trained model, we can save it for use later to predict labels for new data:
+
+>>>>>>>>>
+import joblib
+
+# Save the model as a pickle file
+filename = './models/diabetes_model.pkl'
+joblib.dump(model, filename)
+
+>>>>>>>>>>
+# Load the model from the file
+model = joblib.load(filename)
+
+# predict on a new sample
+# The model accepts an array of feature arrays (so you can predict the classes of multiple patients in a single call)
+# We'll create an array with a single array of features, representing one patient
+X_new = np.array([[2,180,74,24,21,23.9091702,1.488172308,22]])
+print ('New sample: {}'.format(list(X_new[0])))
+
+# Get a prediction
+pred = model.predict(X_new)
+
+# The model returns an array of predictions - one for each set of features submitted
+# In our case, we only submitted one patient, so our prediction is the first one in the resulting array.
+print('Predicted class is {}'.format(pred[0]))
+
+>>>>>>>>>>>>>
+
+Multiclass Classification
+*****************************************
+One vs Rest (OVR)
+------------------
+A classification problem with four possible shape classes (square, circle, triangle, hexagon) would require four classifiers that predict:
+
+square or not
+circle or not
+triangle or not
+hexagon or not
+
+One vs One (OVO)
+----------------
+In which a classifier for each possible pair of classes is created. The classification problem with four shape classes would require the following binary classifiers:
+
+square or circle
+square or triangle
+square or hexagon
+circle or triangle
+circle or hexagon
+triangle or hexagon
+
+Explore the data
+***************************************************
+Let's start by examining a dataset that contains observations of multiple classes. We'll use a dataset that contains observations of three different species of penguin.
+
+>>>>>>>>>>
+import pandas as pd
+
+# load the training dataset
+penguins = pd.read_csv('data/penguins.csv')
+
+# Display a random sample of 10 observations
+sample = penguins.sample(10)
+sample
+
+>>>>>>>>>>>>>>>>>>
+penguin_classes = ['Adelie', 'Gentoo', 'Chinstrap']
+print(sample.columns[0:5].values, 'SpeciesName')
+for index, row in penguins.sample(10).iterrows():
+    print('[',row[0], row[1], row[2], row[3], int(row[4]),']',penguin_classes[int(row[4])])
+
+>>>>>>>>>>>>>>>>>
+# Count the number of null values for each column
+penguins.isnull().sum()
+
+>>>>>>>>>>>>>>>>>
+# Show rows containing nulls
+penguins[penguins.isnull().any(axis=1)]
+
+>>>>>>>>>>>>>>>
+# Drop rows containing NaN values
+penguins=penguins.dropna()
+#Confirm there are now no nulls
+penguins.isnull().sum()
+
+>>>>>>>>>>>>>>>
+from matplotlib import pyplot as plt
+%matplotlib inline
+
+penguin_features = ['CulmenLength','CulmenDepth','FlipperLength','BodyMass']
+penguin_label = 'Species'
+for col in penguin_features:
+    penguins.boxplot(column=col, by=penguin_label, figsize=(6,6))
+    plt.title(col)
+plt.show()
+
+>>>>>>>>>>>>>
+Prepare the data
+=================
+from sklearn.model_selection import train_test_split
+
+# Separate features and labels
+penguins_X, penguins_y = penguins[penguin_features].values, penguins[penguin_label].values
+
+# Split data 70%-30% into training set and test set
+x_penguin_train, x_penguin_test, y_penguin_train, y_penguin_test = train_test_split(penguins_X, penguins_y,
+                                                                                    test_size=0.30,
+                                                                                    random_state=0,
+                                                                                    stratify=penguins_y)
+
+print ('Training Set: %d, Test Set: %d \n' % (x_penguin_train.shape[0], x_penguin_test.shape[0]))
+
+>>>>>>>>>>>>>>>>>>>
+Train and evaluate a multiclass classifier
+========================================
+from sklearn.linear_model import LogisticRegression
+
+# Set regularization rate
+reg = 0.1
+
+# train a logistic regression model on the training set
+multi_model = LogisticRegression(C=1/reg, solver='lbfgs', multi_class='auto', max_iter=10000).fit(x_penguin_train, y_penguin_train)
+print (multi_model)
+
+>>>>>>>>>>>>>>>>>>>>>>>>
+Now we can use the trained model to predict the labels for the test features, and compare the predicted labels to the actual labels:
+
+penguin_predictions = multi_model.predict(x_penguin_test)
+print('Predicted labels: ', penguin_predictions[:15])
+print('Actual labels   : ' ,y_penguin_test[:15])
+
+>>>>>>>>>>>>>>>>>
+from sklearn. metrics import classification_report
+
+print(classification_report(y_penguin_test, penguin_predictions))
+
+>>>>>>>>>>>>>>>>>
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+
+print("Overall Accuracy:",accuracy_score(y_penguin_test, penguin_predictions))
+print("Overall Precision:",precision_score(y_penguin_test, penguin_predictions, average='macro'))
+print("Overall Recall:",recall_score(y_penguin_test, penguin_predictions, average='macro'))
+
+>>>>>>>>>>>>>>
+from sklearn.metrics import confusion_matrix
+
+# Print the confusion matrix
+mcm = confusion_matrix(y_penguin_test, penguin_predictions)
+print(mcm)
+
+>>>>>>>>>>>>
+The confusion matrix shows the intersection of predicted and actual label values for each class - in simple terms, the diagonal intersections from top-left to bottom-right indicate the number of correct predictions.
+
+When dealing with multiple classes, it's generally more intuitive to visualize this as a heat map, like this:
+
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+plt.imshow(mcm, interpolation="nearest", cmap=plt.cm.Blues)
+plt.colorbar()
+tick_marks = np.arange(len(penguin_classes))
+plt.xticks(tick_marks, penguin_classes, rotation=45)
+plt.yticks(tick_marks, penguin_classes)
+plt.xlabel("Predicted Species")
+plt.ylabel("Actual Species")
+plt.show()
+
+>>>>>>>>>>>>>>>
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+
+# Get class probability scores
+penguin_prob = multi_model.predict_proba(x_penguin_test)
+
+# Get ROC metrics for each class
+fpr = {}
+tpr = {}
+thresh ={}
+for i in range(len(penguin_classes)):    
+    fpr[i], tpr[i], thresh[i] = roc_curve(y_penguin_test, penguin_prob[:,i], pos_label=i)
+    
+# Plot the ROC chart
+plt.plot(fpr[0], tpr[0], linestyle='--',color='orange', label=penguin_classes[0] + ' vs Rest')
+plt.plot(fpr[1], tpr[1], linestyle='--',color='green', label=penguin_classes[1] + ' vs Rest')
+plt.plot(fpr[2], tpr[2], linestyle='--',color='blue', label=penguin_classes[2] + ' vs Rest')
+plt.title('Multiclass ROC curve')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive rate')
+plt.legend(loc='best')
+plt.show()
+
+auc = roc_auc_score(y_penguin_test,penguin_prob, multi_class='ovr')
+print('Average AUC:', auc)
+
+>>>>>>>>>>>>>>>>
+Preprocess data in a pipeline
+************************************
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+
+# Define preprocessing for numeric columns (scale them)
+feature_columns = [0,1,2,3]
+feature_transformer = Pipeline(steps=[
+    ('scaler', StandardScaler())
+    ])
+
+# Create preprocessing steps
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('preprocess', feature_transformer, feature_columns)])
+
+# Create training pipeline
+pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                           ('regressor', SVC(probability=True))])
+
+
+# fit the pipeline to train a linear regression model on the training set
+multi_model = pipeline.fit(x_penguin_train, y_penguin_train)
+print (multi_model)
+
+>>>>>>>>>>>>>>>>>>
+# Get predictions from test data
+penguin_predictions = multi_model.predict(x_penguin_test)
+penguin_prob = multi_model.predict_proba(x_penguin_test)
+
+# Overall metrics
+print("Overall Accuracy:",accuracy_score(y_penguin_test, penguin_predictions))
+print("Overall Precision:",precision_score(y_penguin_test, penguin_predictions, average='macro'))
+print("Overall Recall:",recall_score(y_penguin_test, penguin_predictions, average='macro'))
+print('Average AUC:', roc_auc_score(y_penguin_test,penguin_prob, multi_class='ovr'))
+
+# Confusion matrix
+plt.imshow(mcm, interpolation="nearest", cmap=plt.cm.Blues)
+plt.colorbar()
+tick_marks = np.arange(len(penguin_classes))
+plt.xticks(tick_marks, penguin_classes, rotation=45)
+plt.yticks(tick_marks, penguin_classes)
+plt.xlabel("Predicted Species")
+plt.ylabel("Actual Species")
+plt.show()
+
+>>>>>>>>>>>>>>>
+import joblib
+
+# Save the model as a pickle file
+filename = './models/penguin_model.pkl'
+joblib.dump(multi_model, filename)
+
+>>>>>>>>>>>>>>>>
+# Load the model from the file
+multi_model = joblib.load(filename)
+
+# The model accepts an array of feature arrays (so you can predict the classes of multiple penguin observations in a single call)
+# We'll create an array with a single array of features, representing one penguin
+x_new = np.array([[50.4,15.3,224,5550]])
+print ('New sample: {}'.format(x_new[0]))
+
+# The model returns an array of predictions - one for each set of features submitted
+# In our case, we only submitted one penguin, so our prediction is the first one in the resulting array.
+penguin_pred = multi_model.predict(x_new)[0]
+print('Predicted class is', penguin_classes[penguin_pred])
+
+>>>>>>>>>>>>>>
+# This time our input is an array of two feature arrays
+x_new = np.array([[49.5,18.4,195, 3600],
+         [38.2,20.1,190,3900]])
+print ('New samples:\n{}'.format(x_new))
+
+# Call the web service, passing the input data
+predictions = multi_model.predict(x_new)
+
+# Get the predicted classes.
+for prediction in predictions:
+    print(prediction, '(' + penguin_classes[prediction] +')')
+
+>>>>>>>>>>>>>>

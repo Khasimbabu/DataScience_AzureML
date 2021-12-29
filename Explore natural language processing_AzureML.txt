@@ -1,0 +1,315 @@
+Explore natural language processing
+*****************************************
+============================================
+Natural language processing supports applications that can see, hear, speak with, and understand users. Using text analytics, translation, and language understanding services, Microsoft Azure makes it easy to build applications that support natural language.
+
+- identify some key phrases that indicate the main talking points of the text.
+- recognize names of people or well-known landmarks such as the Eiffel Tower
+- get a sense for how the person was feeling when they wrote the text, also commonly known as sentiment.
+
+Text Analytics Techniques
+****************************
+Text analytics is a process where an artificial intelligence (AI) algorithm, running on a computer, evaluates these same attributes in text, to determine specific insights. 
+
+1) Statistical analysis of terms used in the text.
+- removing common "stop words" (words like "the" or "a", which reveal little semantic information about the text)
+- performing frequency analysis of the remaining words (counting how often each word appears) can provide clues about the main subject of the text.
+
+2) Extending frequency analysis to multi-term phrases, commonly known as N-grams (a two-word phrase is a bi-gram, a three-word phrase is a tri-gram, and so on).
+
+3) Applying stemming or lemmatization algorithms to normalize words before counting them - for example, so that words like "power", "powered", and "powerful" are interpreted as being the same word.
+
+4) Applying linguistic structure rules to analyze sentences - for example, breaking down sentences into tree-like structures such as a noun phrase, which itself contains nouns, verbs, adjectives, and so on.
+
+5) Encoding words or terms as numeric features that can be used to train a machine learning model. sentiment analysis, in which a document is classified as positive or negative.
+
+6) Creating vectorized models that capture semantic relationships between words by assigning them to locations in n-dimensional space. 
+
+In Microsoft Azure, the Text Analytics cognitive service can help simplify application development by using pre-trained models that can:
+
+- Determine the language of a document or text (for example, French or English).
+- Perform sentiment analysis on text to determine a positive or negative sentiment.
+- Extract key phrases from text that might indicate its main talking points.
+- Identify and categorize entities in the text. Entities can be people, places, organizations, or even everyday items such as dates, times, quantities, and so on.
+
+To use the Text Analytics service in an application, you must provision an appropriate resource in your Azure subscription.
+- A Text Analytics resource - choose this resource type if you only plan to use the Text Analytics service, or if you want to manage access and billing for the resource separately from other services.
+- A Cognitive Services resource - choose this resource type if you plan to use the Text Analytics service in combination with other cognitive services, and you want to manage access and billing for these services together.	
+
+Language detection
+**********************
+Text Analytics service to identify the language in which text is written. 
+- The language name (for example "English").
+- The ISO 6391 language code (for example, "en").
+- A score indicating a level of confidence in the language detection.
+
+predominant language
+----------------------
+Notice that the language detected for review 3 is English, despite the text containing a mix of English and French. The language detection service will focus on the predominant language in the text. The service uses an algorithm to determine the predominant language, such as length of phrases or total amount of text for the language compared to other languages in the text. The predominant language will be the value returned, along with the language code. The confidence score may be less than 1 as a result of the mixed language text.
+
+Sentiment analysis
+********************
+evaluate text and return sentiment scores and labels for each sentence. This capability is useful for detecting positive and negative sentiment in social media, customer reviews, discussion forums and more.
+
+- Using the pre-built machine learning classification model, the service evaluates the text and returns a sentiment score in the range of 0 to 1, with values closer to 1 being a positive sentiment. Scores that are close to the middle of the range (0.5) are considered neutral or indeterminate.
+
+Key phrase extraction
+**************************
+is the concept of evaluating the text of a document, or documents, and then identifying the main talking points of the document(s).
+
+- Key phrase extraction can provide some context to this review by extracting the phrases
+
+Entity recognition
+*******************
+An entity is essentially an item of a particular type or a category; and in some cases, subtype, such as (Person, Location, Organization, Quantity, DateTime, US-based Phone Number....)
+
+********************************************************
+Recognize and synthesize speech
+********************************
+we expect artificial intelligence (AI) solutions to accept vocal commands and provide spoken responses. Consider the growing number of home and auto systems that you can control by speaking to them - issuing commands such as "turn off the lights", and soliciting verbal answers to questions such as "will it rain today?"
+
+To enable this kind of interaction, the AI system must support two capabilities:
+
+Speech recognition - the ability to detect and interpret spoken input.
+Speech synthesis - the ability to generate spoken output.
+
+Speech recognition
+*********************
+is concerned with taking the spoken word and converting it into data that can be processed - often by transcribing it into a text representation. The spoken words can be in the form of a recorded voice in an audio file, or live audio from a microphone. Speech patterns are analyzed in the audio to determine recognizable patterns that are mapped to words. To accomplish this feat, the software typically uses multiple types of model, including:
+
+- An acoustic model that converts the audio signal into phonemes (representations of specific sounds).
+
+- A language model that maps phonemes to words, usually using a statistical algorithm that predicts the most probable sequence of words based on the phonemes.
+
+The recognized words are typically converted to text, which you can use for various purposes
+
+Speech synthesis
+********************
+Speech synthesis is in many respects the reverse of speech recognition. It is concerned with vocalizing data, usually by converting text to speech. A speech synthesis solution typically requires the following information:
+
+The text to be spoken.
+The voice to be used to vocalize the speech.
+
+Speech cognitive service
+***************************
+Microsoft Azure offers both speech recognition and speech synthesis capabilities through the Speech cognitive service, which includes the following application programming interfaces (APIs):
+
+The Speech-to-Text API
+The Text-to-Speech API
+
+you must provision an appropriate resource in your Azure subscription. You can choose to provision either of the following types of resource:
+
+- A Speech resource - choose this resource type if you only plan to use the Speech service, or if you want to manage access and billing for the resource separately from other services.
+
+- A Cognitive Services resource - choose this resource type if you plan to use the Speech service in combination with other cognitive services, and you want to manage access and billing for these services together.
+
+speech-to-text API
+*******************
+You can use the speech-to-text API to perform real-time or batch transcription of audio into a text format. The audio source for transcription can be a real-time audio stream from a microphone or an audio file.
+
+The model that is used by the speech-to-text API, is based on the Universal Language Model that was trained by Microsoft. The data for the model is Microsoft-owned and deployed to Microsoft Azure. The model is optimized for two scenarios, conversational and dictation. 
+
+text-to-speech API
+********************
+The text-to-speech API enables you to convert text input to audible speech, which can either be played directly through a computer speaker or written to an audio file.
+
+The service includes multiple pre-defined voices with support for multiple languages and regional pronunciation, including standard voices as well as neural voices that leverage neural networks to overcome common limitations in speech synthesis with regard to intonation, resulting in a more natural sounding voice. You can also develop custom voices and use them with the text-to-speech API
+
+Get Started with the Cognitive Services
+Cognitive Services available to use with your key and endpoint.
+Computer Vision - Analyze images
+Content Moderator - Check text, image or videos for offensive or undesirable content
+Face - Recognize people and their attributes in an image
+Form Recognizer - Identify and extract text, key/value pairs and table data from form documents
+Personalizer - Create rich, personalized experiences for every user of your app.
+Language Understanding - Extract meaning from natural language
+Speech - Transform speech-to-text, text-to-speech and recognize speakers
+Text Analytics - Detect sentiment, key phrases, entities and human language type in text
+Translator - Translate text in near real-time
+Video Indexer - Analyze video and audio
+
+*************
+Speech recognition is concerned with taking the spoken word and converting it into a text representation, while speech synthesis is the process of converting text data to audible speech. Both of these tasks are supported by the Speech cognitive service.
+*************
+
+
+cfc7f201cd7e4438b600ec970fac5e43
+https://khasimcognitive.cognitiveservices.azure.com/
+centralindia
+
+Translate text and speech
+***********************************
+Automated translation capabilities in an AI solution enables closer collaboration by removing language barriers.
+
+you will be able to perform text and speech translation using Azure Cognitive Services.
+
+One solution is to find bilingual, or even multilingual, people to translate between languages. However the scarcity of such skills, and the number of possible language combinations can make this approach difficult to scale. Increasingly, automated translation, sometimes known as machine translation, is being employed to solve this problem.
+
+Literal and semantic translation
+******************************************
+literal translations
+-----------------------
+Early attempts at machine translation applied literal translations. A literal translation is where each word is translated to the corresponding word in the target language. 
+
+This approach presents some issues. For one case, there may not be an equivalent word in the target language. Another case is where literal translation can change the meaning of the phrase or not get the context correct.
+
+Artificial intelligence systems must be able to understand, not only the words, but also the semantic context in which they are used. In this way, the service can return a more accurate translation of the input phrase or phrases. The grammar rules, formal versus informal, and colloquialisms all need to be considered.
+
+Text and speech translation
+*******************************
+Text translation can be used to translate documents from one language to another, translate email communications that come from foreign governments, and even provide the ability to translate web pages on the Internet.
+
+Speech translation is used to translate between spoken languages, sometimes directly (speech-to-speech translation) and sometimes by translating to an intermediary text format (speech-to-text translation).
+
+Microsoft Azure provides cognitive services that support translation. Specifically, you can use the following services:
+
+- The Translator Text service, which supports text-to-text translation.
+- The Speech service, which enables speech-to-text and speech-to-speech translation.
+
+Azure resources for Translator Text and Speech
+***************************************************
+Before you can use the Translator Text or Speech services, you must provision appropriate resources in your Azure subscription.
+
+There are dedicated Translator Text and Speech resource types for these services, which you can use if you want to manage access and billing for each service individually.
+
+Alternatively, you can create a Cognitive Services resource that provides access to both services through a single Azure resource, consolidating billing and enabling applications to access both services through a single endpoint and authentication key.
+
+Text translation with the Translator Text service
+*******************************************************
+The Translator Text service is easy to integrate in your applications, websites, tools, and solutions. The service uses a Neural Machine Translation (NMT) model for translation, which analyzes the semantic context of the text and renders a more accurate and complete translation as a result.
+
+The Text Translator service supports text-to-text translation between more than 60 languages. When using the service, you must specify the language you are translating from and the language you are translating to using ISO 639-1 language codes, such as en for English, fr for French, and zh for Chinese. Alternatively, you can specify cultural variants of languages by extending the language code with the appropriate 3166-1 cultural code - for example, en-US for US English, en-GB for British English, or fr-CA for Canadian French.
+
+When using the Text Translator service, you can specify one from language with multiple to languages, enabling you to simultaneously translate a source document into multiple languages.
+
+Speech translation with the Speech service
+************************************************
+The Speech service includes the following application programming interfaces (APIs):
+
+Speech-to-text - used to transcribe speech from an audio source to text format.
+Text-to-speech - used to generate spoken audio from a text source.
+Speech Translation - used to translate speech in one language to text or speech in another.
+
+You can use the Speech Translation API to translate spoken audio from a streaming source, such as a microphone or audio file, and return the translation as text or an audio stream. This enables scenarios such as real-time closed captioning for a speech or simultaneous two-way translation of a spoken conversation.
+
+The source language must be specified using the extended language and culture code format, such as es-US for American Spanish. This requirement helps ensure that the source is understood properly, allowing for localized pronunciation and linguistic idioms.
+
+The target languages must be specified using a two-character language code, such as en for English or de for German.
+
+Create a language model with Language Understanding
+*******************************************************
+As artificial intelligence (AI) grows ever more sophisticated, this kind of conversational interaction with applications and digital assistants is becoming more and more common, and in specific scenarios can result in human-like interactions with AI agents. 
+
+On Microsoft Azure, language understanding is supported through the Language Understanding Intelligent Service, more commonly known as Language Understanding. To work with Language Understanding, you need to take into account three core concepts: utterances, entities, and intents.
+
+utterances
+*******************
+An utterance is an example of something a user might say, and which your application must interpret. For example, when using a home automation system, a user might use the following utterances:
+
+"Switch the fan on."
+"Turn on the light."
+
+entities
+*************
+An entity is an item to which an utterance refers. For example, fan and light in the following utterances:
+
+"Switch the fan on."
+"Turn on the light."
+
+intents
+***********
+An intent represents the purpose, or goal, expressed in a user's utterance. For example, for both of the previously considered utterances, the intent is to turn a device on; so in your Language Understanding application, you might define a TurnOn intent that is related to these utterances.
+
+Of special interest is the None intent. You should consider always using the None intent to help handle utterances that do not map any of the utterances you have entered. The None intent is considered a fallback, and is typically used to provide a generic response to users when their requests don't match any other intent.
+
+In a Language Understanding application, the None intent is created but left empty on purpose. The None intent is a required intent and can't be deleted or renamed. Fill it with utterances that are outside of your domain.
+
+Creating a language understanding application with Language Understanding consists of two main tasks. 
+- First you must define entities, intents, and utterances with which to train the language model - referred to as authoring the model. 
+
+- Then you must publish the model so that client applications can use it for intent and entity prediction based on user input.
+
+Azure resources for Language Understanding
+**********************************************
+You can use the following types of resource:
+
+Language Understanding: A dedicated resource for Language Understanding, which can be either an authoring or a prediction resource.
+
+Cognitive Services: A general cognitive services resource that includes Language Understanding along with many other cognitive services. You can only use this type of resource for prediction.
+
+If you choose to create a Language Understanding resource, you will be prompted to choose authoring, prediction, or both - and it's important to note that if you choose "both", then two resources are created - one for authoring and one for prediction.
+
+
+******************************************
+Detect objects in images with the Custom Vision service
+*********************************************************
+Object detection is a form of computer vision in which artificial intelligence (AI) agents can identify and locate specific types of object in an image or camera feed.
+
+Object detection is a form of machine learning based computer vision in which a model is trained to recognize individual types of object in an image, and to identify their location in the image.
+
+Notice that an object detection model returns the following information:
+
+- The class of each object identified in the image.
+- The probability score of the object classification (which you can interpret as the confidence of the predicted class being correct)
+- The coordinates of a bounding box for each object.
+
+Object detection vs. image classification
+******************************************
+Image classification is a machine learning based form of computer vision in which a model is trained to categorize images based on the primary subject matter they contain. 
+Object detection goes further than this to classify individual objects within the image, and to return the coordinates of a bounding box that indicates the object's location.
+
+Azure resources for Custom Vision
+****************************************
+Creating an object detection solution with Custom Vision consists of three main tasks. First you must use upload and tag images, then you can train the model, and finally you must publish the model so that client applications can use it to generate predictions.
+
+For each of these tasks, you need a resource in your Azure subscription. You can use the following types of resource:
+
+- Custom Vision: A dedicated resource for the custom vision service, which can be either a training or a prediction resource.
+- Cognitive Services: A general cognitive services resource that includes     
+Custom Vision along with many other cognitive services. You can use this type of resource for training, prediction, or both.
+
+MOdel -> Train the Model -> Publish the Model to predictino resource
+To use you model, client application developers need the following information:
+
+Project ID: The unique ID of the Custom Vision project you created to train the model.
+Model name: The name you assigned to the model during publishing.
+Prediction endpoint: The HTTP address of the endpoints for the prediction resource to which you published the model (not the training resource).
+Prediction key: The authentication key for the prediction resource to which you published the model (not the training resource).
+
+********************************************
+Detect and analyze faces with the Face service
+*********************************************
+Face detection, analysis, and recognition is an important capability for artificial intelligence (AI) solutions. The Face cognitive service in Azure makes it easy integrate these capabilities into your applications.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
